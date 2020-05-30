@@ -37,4 +37,8 @@ public class Bouton {
 		this.c = c;
 	}
 
+	public Bouton() {
+		// TODO Auto-generated constructor stub
+	}
+
 }

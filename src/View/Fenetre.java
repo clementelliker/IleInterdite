@@ -161,13 +161,14 @@ public class Fenetre extends JPanel{
 				}
 				drawJ(g, this.p.cases.get(i).j, this.p.cases.get(i).j.size());//on affiche les joueurs étant sur la case
 			}
-				
-			for(int i = 0; i < this.p.buttons.size(); i++) {//on affiche les bouttons
+			Bouton buttonSelected = new Bouton();	
+			for(int i = 0; i < this.p.buttons.size()-this.p.nbJoueur; i++) {//on affiche les bouttons
 				g.setColor(this.p.buttons.get(i).c);
 				g.fillRect(this.p.buttons.get(i).x, this.p.buttons.get(i).y, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le fond du bouton
 				g.setColor(Color.BLACK);
-				if((i == 1 && this.p.selectedSDS == true) || (i == 2 && this.p.selectedH == true)) {
-					g.setColor(Color.RED);
+				if((i == 1 && this.p.selectedSDS == true) || (i == 2 && this.p.selectedH == true) || (i == 3 && this.p.selectedA == true) || (i == 4 && this.p.selectedE == true)
+						|| (i == 5 && this.p.selectedF == true) || (i == 6 && this.p.selectedT == true)) {
+					buttonSelected = this.p.buttons.get(i);//on recupére le bouton sélectionné si il existe
 				}
 				g.drawRect(this.p.buttons.get(i).x, this.p.buttons.get(i).y, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le contour du bouton
 				g.setFont(new Font("b", 5, 20));
@@ -180,6 +181,31 @@ public class Fenetre extends JPanel{
 					g.drawString(Integer.toString(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).nbHelico), this.p.buttons.get(i).x+ this.p.buttons.get(i).width*3/12, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width*10/12));
 				}
 			}
+			if(this.p.selectedA == true || this.p.selectedE == true || this.p.selectedF == true || this.p.selectedT == true ) {//on affiche les couleurs des joueurs si on a appuyer sur le bouton pour dooner une clé
+				for(int j = 0; j < this.p.nbJoueur; j++) {
+					int i = j+7;
+					g.setColor(this.p.buttons.get(i).c);
+					g.fillRect(this.p.buttons.get(i).x, this.p.buttons.get(i).y, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le fond du bouton
+					g.setColor(Color.BLACK);
+					if((i == 1 && this.p.selectedSDS == true) || (i == 2 && this.p.selectedH == true) || (i == 3 && this.p.selectedA == true) || (i == 4 && this.p.selectedE == true)
+							|| (i == 5 && this.p.selectedF == true) || (i == 6 && this.p.selectedT == true)) {
+						buttonSelected = this.p.buttons.get(i);//on recupére le bouton sélectionné si il existe
+					}
+					g.drawRect(this.p.buttons.get(i).x, this.p.buttons.get(i).y, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le contour du bouton
+					g.setFont(new Font("b", 5, 20));
+					g.drawString(this.p.buttons.get(i).text, this.p.buttons.get(i).x+ this.p.buttons.get(i).width/12, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width/3.1));//le texte du bouton
+					if(i == 1) {
+						g.setFont(new Font("b", 5, 50));
+						g.drawString(Integer.toString(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).nbSacDeSable), this.p.buttons.get(i).x+ this.p.buttons.get(i).width*3/12, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width*10/12));
+					}else if(i == 2) {
+						g.setFont(new Font("b", 5, 50));
+						g.drawString(Integer.toString(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).nbHelico), this.p.buttons.get(i).x+ this.p.buttons.get(i).width*3/12, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width*10/12));
+					}
+				}
+			}
+			//on fait le contour en rouge du bonton sélectionné
+			g.setColor(Color.RED);
+			g.drawRect(buttonSelected.x, buttonSelected.y, buttonSelected.width, buttonSelected.height);
 			if(this.p.joueurs.size() != 0) {//permet d'éviter un bug où on rentre ici sans avoir créé de joueurs
 				if(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).usedSDS == true) {
 					g.setColor(noir);
@@ -294,26 +320,34 @@ public class Fenetre extends JPanel{
 	private void drawInvJoueur(Graphics g, int numJoueur, int x, int y) {
 		int nbDrawed = 0;
 		for(int i = 0; i < 4; i++) {
-			if(this.p.joueurs.get(numJoueur).clef.get(i) == 1) {
-				drawClef(g, x, y, i, nbDrawed);
+			if(this.p.joueurs.get(numJoueur).clef.get(i) != 0) {
+				drawClef(g, x, y, i, nbDrawed, this.p.joueurs.get(numJoueur).clef.get(i));
 				nbDrawed++;
 			}
 		}
 	}
 	
-	private void drawClef(Graphics g, int x, int y, int numCle, int nbDrawed) {
+	private void drawClef(Graphics g, int x, int y, int numCle, int nbDrawed, int amountCle) {
 		if(numCle == 0) {//clé eau
 			g.setColor(arteEau);
 			g.fillRect(x + this.wdWidth*1/16 + this.wdWidth*nbDrawed/32, y + this.basHeight/24, this.wdWidth*1/64, this.wdHeight*1/24);
+			g.setColor(noir);
+			g.drawString(Integer.toString(amountCle), x + this.wdWidth*1/16 + this.wdWidth*nbDrawed/32, y + this.basHeight/4);
 		}else if(numCle == 1) {//clé feu
 			g.setColor(arteFeu);
 			g.fillRect(x + this.wdWidth*1/16 + this.wdWidth*nbDrawed/32, y + this.basHeight/24, this.wdWidth*1/64, this.wdHeight*1/24);
+			g.setColor(noir);
+			g.drawString(Integer.toString(amountCle), x + this.wdWidth*1/16 + this.wdWidth*nbDrawed/32, y + this.basHeight/4);
 		}else if(numCle == 2) {//clé air
 			g.setColor(arteAir);
 			g.fillRect(x + this.wdWidth*1/16 + this.wdWidth*nbDrawed/32, y + this.basHeight/24, this.wdWidth*1/64, this.wdHeight*1/24);
+			g.setColor(noir);
+			g.drawString(Integer.toString(amountCle), x + this.wdWidth*1/16 + this.wdWidth*nbDrawed/32, y + this.basHeight/4);
 		}else if(numCle == 3) {//clé terre
 			g.setColor(arteTerre);
 			g.fillRect(x + this.wdWidth*1/16 + this.wdWidth*nbDrawed/32, y + this.basHeight/24, this.wdWidth*1/64, this.wdHeight*1/24);
+			g.setColor(noir);
+			g.drawString(Integer.toString(amountCle), x + this.wdWidth*1/16 + this.wdWidth*nbDrawed/32, y + this.basHeight/4);
 		}
 	}
 	

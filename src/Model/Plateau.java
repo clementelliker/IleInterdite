@@ -20,6 +20,10 @@ public class Plateau {
 	public ArrayList<Integer> artefactOwned;
 	public boolean selectedSDS;
 	public boolean selectedH;
+	public boolean selectedA;
+	public boolean selectedE;
+	public boolean selectedF;
+	public boolean selectedT;
 	
 	public Plateau() {
 		/*
@@ -37,6 +41,10 @@ public class Plateau {
 		}
 		this.selectedSDS = false;
 		this.selectedH = false;
+		this.selectedA = false;
+		this.selectedE = false;
+		this.selectedF = false;
+		this.selectedT = false;
 	}
 	
 	public void linkWindow(Fenetre wd) {
@@ -123,6 +131,22 @@ public class Plateau {
 		//on ajoute les bouton pour les objets spéciaux
 		this.buttons.add(new Bouton(this.wd, this, 0, this.wd.wdHeight*9/12, this.wd.wdWidth/12, this.wd.wdHeight/12, "", new Color(255,255,102)));//sac de sable
 		this.buttons.add(new Bouton(this.wd, this, 0, this.wd.wdHeight*5/6, this.wd.wdWidth/12, this.wd.wdHeight/12, "", new Color(151,151,151)));//helico
+		//on ajoute les bouton pour echanger les clés
+		this.buttons.add(new Bouton(this.wd, this, 0, this.wd.wdHeight*11/12, this.wd.wdWidth/24, this.wd.wdHeight/24, "", new Color(248,255,200)));
+		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth/24, this.wd.wdHeight*11/12, this.wd.wdWidth/24, this.wd.wdHeight/24, "", new Color(14,135,165)));
+		this.buttons.add(new Bouton(this.wd, this, 0, this.wd.wdHeight*23/24, this.wd.wdWidth/24, this.wd.wdHeight/24, "", new Color(253,114,18)));
+		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth/24, this.wd.wdHeight*23/24, this.wd.wdWidth/24, this.wd.wdHeight/24, "", new Color(147,90,53)));
+		//on ajoute les boutons pour selectionner le joueur a qui on donne la clé
+		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth/12, this.wd.wdHeight*11/12, this.wd.wdWidth/24, this.wd.wdHeight/24, "", new Color(230,230,0)));
+		if(this.nbJoueur > 1) {
+			this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*3/24, this.wd.wdHeight*11/12, this.wd.wdWidth/24, this.wd.wdHeight/24, "", new Color(230,0,0)));
+		}
+		if(this.nbJoueur > 2) {
+			this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth/12, this.wd.wdHeight*23/24, this.wd.wdWidth/24, this.wd.wdHeight/24, "", new Color(0,42,255)));
+			}
+		if(this.nbJoueur > 3) {
+			this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*3/24, this.wd.wdHeight*23/24, this.wd.wdWidth/24, this.wd.wdHeight/24, "", new Color(0,230,0)));
+		}	
 		//on initialise les joueurs
 		for(int i = 0; i < this.nbJoueur; i++) {
 			this.joueurs.add(new Joueur(this.wd, this, i));
@@ -164,17 +188,71 @@ public class Plateau {
 					}
 					if(i == 1) {
 						if(this.selectedSDS == false) {
+							this.unselecting();
 							this.selectedSDS = true;
-							this.selectedH = false;
 						}else {
 							this.selectedSDS = false;
 						}
 					}else if(i == 2) {
 						if(this.selectedH == false) {
+							this.unselecting();
 							this.selectedH = true;
-							this.selectedSDS = false;
 						}else {
 							this.selectedH = false;
+						}
+					}else if(i == 3) {
+						if(this.selectedA == false) {
+							this.unselecting();
+							this.selectedA = true;
+						}else {
+							this.selectedA = false;
+						}
+						
+					}else if(i == 4) {
+						if(this.selectedE == false) {
+							this.unselecting();
+							this.selectedE = true;
+						}else {
+							this.selectedE = false;
+						}
+						
+					}else if(i == 5) {
+						if(this.selectedF == false) {
+							this.unselecting();
+							this.selectedF = true;
+						}else {
+							this.selectedF = false;
+						}
+						
+					}else if(i == 6) {
+						if(this.selectedT == false) {
+							this.unselecting();
+							this.selectedT = true;
+						}else {
+							this.selectedT = false;
+						}
+						
+					}
+					if(this.selectedA == true || this.selectedE == true || this.selectedF == true || this.selectedT == true && i > 6) {
+						//on cherche la clé sélectionnée
+						int cléSelected = 0;
+						if(this.selectedF == true) {
+							cléSelected = 1;
+						}else if(this.selectedA == true) {
+							cléSelected = 2;
+						}if(this.selectedT == true) {
+							cléSelected = 3;
+						}
+						for(int j = 0; j < this.nbJoueur; j++) {
+							//System.out.println("1 " + Boolean.toString(i == 7+j));
+							//System.out.println("2 " + Boolean.toString(this.joueurs.get(this.tourJ%this.nbJoueur).pos == this.joueurs.get(j).pos));
+							//System.out.println("3 " + Boolean.toString(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(cléSelected) > 0));
+							if(i == 7+j && this.joueurs.get(this.tourJ%this.nbJoueur).pos == this.joueurs.get(j).pos && this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(cléSelected)
+									> 0) {//on regarde si le joueur est sur la même case et si il peut donner la clé
+								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(cléSelected, this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(cléSelected)-1);
+								this.joueurs.get(j).clef.set(cléSelected, this.joueurs.get(j).clef.get(cléSelected)+1);
+								this.unselecting();
+							}
 						}
 					}
 				}
@@ -190,26 +268,26 @@ public class Plateau {
 				if(this.joueurs.get(this.tourJ%this.nbJoueur).pos == caseClicked) {//on regarde si on a cliqué sur la case de notre personnage
 					if(caseClicked.type != caseType.heliport && caseClicked.type != caseType.normal) {
 						if(caseClicked.type == caseType.eau) {
-							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(0) == 1 && this.artefactOwned.get(0) == 0) {
-								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(0,0);
+							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(0) >= 4 && this.artefactOwned.get(0) == 0) {
+								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(0,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(0) - 4);
 								this.artefactOwned.set(0, 1);
 								this.actionRestante--;
 							}
 						}else if(caseClicked.type == caseType.feu) {
-							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(1) == 1 && this.artefactOwned.get(1) == 0) {
-								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(1,0);
+							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(1) >= 4 && this.artefactOwned.get(1) == 0) {
+								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(1,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(1) - 4);
 								this.artefactOwned.set(1, 1);
 								this.actionRestante--;
 							}
 						}else if(caseClicked.type == caseType.air) {
-							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(2) == 1 && this.artefactOwned.get(2) == 0) {
-								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(2,0);
+							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(2) >= 4 && this.artefactOwned.get(2) == 0) {
+								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(2,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(2) - 4);
 								this.artefactOwned.set(2, 1);
 								this.actionRestante--;
 							}
 						}else if(caseClicked.type == caseType.terre) {
-							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(3) == 1 && this.artefactOwned.get(3) == 0) {
-								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(3,0);
+							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(3) >= 4 && this.artefactOwned.get(3) == 0) {
+								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(3,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(3) - 4);
 								this.artefactOwned.set(3, 1);
 								this.actionRestante--;
 							}
@@ -224,6 +302,15 @@ public class Plateau {
 				}
 			}
 		}
+	}
+	
+	public void unselecting() {
+		this.selectedSDS = false;
+		this.selectedH = false;
+		this.selectedA = false;
+		this.selectedE = false;
+		this.selectedF = false;
+		this.selectedT = false;
 	}
 	
 	public boolean sontAdjacentes(Case c1, Case c2) {
@@ -241,7 +328,7 @@ public class Plateau {
 		 */
 		ArrayList<Integer> caseDone = zoneSubmerge();//on regarde quelles sont les zones submergées (1 si oui, 0 sinon)
 		int rand;
-		rand = seed.nextInt(8);//on tire au hasard l'action de fin de tour
+		rand = seed.nextInt(12);//on tire au hasard l'action de fin de tour
 		if(rand < 2) {//on inonde une zone
 			if(this.joueurs.get(this.tourJ%this.nbJoueur).pos.etat == Etat.normale) {//on met a jour l'état de la case du personnage
 				this.joueurs.get(this.tourJ%this.nbJoueur).pos.etat = Etat.innonde;
@@ -252,14 +339,14 @@ public class Plateau {
 			this.joueurs.get(this.tourJ%this.nbJoueur).nbHelico++;
 		}else if(rand == 3) {//on ajoute a sac de sable
 			this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable++;
-		}else if(rand == 4) {//on ajoute une clé de eau
-			this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(0,1);
-		}else if(rand == 5) {//on ajoute une clé de feu
-			this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(1,1);
-		}else if(rand == 6) {//on ajoute une clé de air
-			this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(2,1);
-		}else if(rand == 7) {//on ajoute une clé de terre
-			this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(3,1);
+		}else if(rand == 4 || rand == 5) {//on ajoute une clé de eau
+			this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(0,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(0) + 1);
+		}else if(rand == 6  || rand == 7) {//on ajoute une clé de feu
+			this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(1,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(1) + 1);
+		}else if(rand == 8  || rand == 9) {//on ajoute une clé de air
+			this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(2,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(2) + 1);
+		}else if(rand == 10  || rand == 11) {//on ajoute une clé de terre
+			this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(3,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(3) + 1);
 		}
 		
 		if(this.nbZoneSubmerge() < 22) {//si on peut modifier 3 cases 
@@ -302,8 +389,7 @@ public class Plateau {
 		this.tourJ++;//on passe au joueur suivant
 		this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS = false;
 		this.joueurs.get(this.tourJ%this.nbJoueur).usedH = false;
-		this.selectedH = false;
-		this.selectedSDS = false;
+		this.unselecting();
 		
 	}
 	
