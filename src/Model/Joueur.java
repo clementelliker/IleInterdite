@@ -15,7 +15,7 @@ public class Joueur {
 	public ArrayList<Integer> clef;
 	public int nbSacDeSable;
 	public int nbHelico;
-	public boolean usedSDC;
+	public boolean usedSDS;
 	public boolean usedH;
 	
 	public Joueur(Fenetre wd, Plateau p, int numJ) {	
@@ -37,7 +37,7 @@ public class Joueur {
 		}
 		this.nbHelico = 0;
 		this.nbSacDeSable = 0;
-		this.usedSDC = false;
+		this.usedSDS = false;
 		this.usedH = false;
 	}
 

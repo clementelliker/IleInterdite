@@ -18,7 +18,7 @@ public class Plateau {
 	public int nbJoueur;//nombre de joueurs
 	public EtatPlateau eP;//etat actuel du plateau
 	public ArrayList<Integer> artefactOwned;
-	public boolean selectedSDC;
+	public boolean selectedSDS;
 	public boolean selectedH;
 	
 	public Plateau() {
@@ -35,7 +35,7 @@ public class Plateau {
 		for(int i = 0; i < 4; i++) {
 			this.artefactOwned.add(0);
 		}
-		this.selectedSDC = false;
+		this.selectedSDS = false;
 		this.selectedH = false;
 	}
 	
@@ -163,16 +163,16 @@ public class Plateau {
 						this.finDeTour();//on fait la fin de tour
 					}
 					if(i == 1) {
-						if(this.selectedSDC == false) {
-							this.selectedSDC = true;
+						if(this.selectedSDS == false) {
+							this.selectedSDS = true;
 							this.selectedH = false;
 						}else {
-							this.selectedSDC = false;
+							this.selectedSDS = false;
 						}
 					}else if(i == 2) {
 						if(this.selectedH == false) {
 							this.selectedH = true;
-							this.selectedSDC = false;
+							this.selectedSDS = false;
 						}else {
 							this.selectedH = false;
 						}
@@ -300,10 +300,10 @@ public class Plateau {
 		}
 		this.actionRestante = 3;//on reset le nombre d'action restante
 		this.tourJ++;//on passe au joueur suivant
-		this.joueurs.get(this.tourJ%this.nbJoueur).usedSDC = false;
+		this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS = false;
 		this.joueurs.get(this.tourJ%this.nbJoueur).usedH = false;
 		this.selectedH = false;
-		this.selectedSDC = false;
+		this.selectedSDS = false;
 		
 	}
 	
@@ -356,12 +356,12 @@ public class Plateau {
 					caseClicked.etat = Etat.normale;//on modifie l'état de la case modifiée
 				}
 			}
-			if(this.selectedSDC == true && this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable > 0 && this.joueurs.get(this.tourJ%this.nbJoueur).usedSDC == false) {
+			if(this.selectedSDS == true && this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable > 0 && this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS == false) {
 				if(caseClicked.etat == Etat.innonde) {//on vérifie que la case est dans l'état innondé
 					caseClicked.etat = Etat.normale;//on modifie l'état de la case modifiée
 					this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable--;
-					this.joueurs.get(this.tourJ%this.nbJoueur).usedSDC = true;
-					this.selectedSDC = false;
+					this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS = true;
+					this.selectedSDS = false;
 				}
 			}
 			if(this.selectedH == true && this.joueurs.get(this.tourJ%this.nbJoueur).usedH == false) {

@@ -166,7 +166,7 @@ public class Fenetre extends JPanel{
 				g.setColor(this.p.buttons.get(i).c);
 				g.fillRect(this.p.buttons.get(i).x, this.p.buttons.get(i).y, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le fond du bouton
 				g.setColor(Color.BLACK);
-				if((i == 1 && this.p.selectedSDC == true) || (i == 2 && this.p.selectedH == true)) {
+				if((i == 1 && this.p.selectedSDS == true) || (i == 2 && this.p.selectedH == true)) {
 					g.setColor(Color.RED);
 				}
 				g.drawRect(this.p.buttons.get(i).x, this.p.buttons.get(i).y, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le contour du bouton
@@ -181,7 +181,7 @@ public class Fenetre extends JPanel{
 				}
 			}
 			if(this.p.joueurs.size() != 0) {//permet d'éviter un bug où on rentre ici sans avoir créé de joueurs
-				if(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).usedSDC == true) {
+				if(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).usedSDS == true) {
 					g.setColor(noir);
 					g.drawLine(0, this.wdHeight*9/12, this.wdWidth/12, this.wdHeight*5/6);
 					g.drawLine(this.wdWidth/12, this.wdHeight*9/12, 0, this.wdHeight*5/6);
