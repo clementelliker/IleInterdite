@@ -43,6 +43,7 @@ public class Main {
 		}
 		while(wd.p.eP == EtatPlateau.MenudeFinPerdant) {
 			wd.repaint();//met a jour les composants graphiques
+			//test
 		}
 	}
 	
