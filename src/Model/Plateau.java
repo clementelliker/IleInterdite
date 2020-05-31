@@ -291,6 +291,7 @@ public class Plateau {
 						&& this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.navigateur && this.selectedA != true && this.selectedE != true 
 						&& this.selectedF != true && this.selectedT != true) {
 					if(i-7 != this.joueurs.get(this.tourJ%this.nbJoueur).numJ) {
+						this.unselecting();
 						this.navigPlayerSelected = this.joueurs.get(i-7);
 					}
 					
@@ -383,6 +384,7 @@ public class Plateau {
 		this.selectedE = false;
 		this.selectedF = false;
 		this.selectedT = false;
+		this.navigPlayerSelected = new Joueur(99);
 	}
 	
 	public boolean sontAdjacentes(Case c1, Case c2) {
@@ -463,7 +465,7 @@ public class Plateau {
 		this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS = false;
 		this.joueurs.get(this.tourJ%this.nbJoueur).usedH = false;
 		this.unselecting();
-		
+		this.navigPlayerSelected = new Joueur(99);
 	}
 	
 	public ArrayList<Integer> zoneSubmerge() {

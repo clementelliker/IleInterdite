@@ -181,38 +181,44 @@ public class Fenetre extends JPanel{
 					g.drawString(Integer.toString(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).nbHelico), this.p.buttons.get(i).x+ this.p.buttons.get(i).width*3/12, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width*10/12));
 				}
 			}
-			if(this.p.selectedA == true || this.p.selectedE == true || this.p.selectedF == true || this.p.selectedT == true ) {//on affiche les couleurs des joueurs si on a appuyer sur le bouton pour dooner une clé
-				for(int j = 0; j < this.p.nbJoueur; j++) {
-					int i = j+7;
-					g.setColor(this.p.buttons.get(i).c);
-					g.fillRect(this.p.buttons.get(i).x, this.p.buttons.get(i).y, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le fond du bouton
-					g.setColor(Color.BLACK);
-					if((i == 1 && this.p.selectedSDS == true) || (i == 2 && this.p.selectedH == true) || (i == 3 && this.p.selectedA == true) || (i == 4 && this.p.selectedE == true)
-							|| (i == 5 && this.p.selectedF == true) || (i == 6 && this.p.selectedT == true)) {
-						buttonSelected = this.p.buttons.get(i);//on recupére le bouton sélectionné si il existe
+			if(this.p.joueurs.size() != 0) {//bug fix
+				if(this.p.selectedA == true || this.p.selectedE == true || this.p.selectedF == true || this.p.selectedT == true ) {//on affiche les couleurs des joueurs si on a appuyer sur le bouton pour dooner une clé
+					for(int j = 0; j < this.p.nbJoueur; j++) {
+						int i = j+7;
+						g.setColor(this.p.buttons.get(i).c);
+						g.fillRect(this.p.buttons.get(i).x, this.p.buttons.get(i).y, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le fond du bouton
+						g.setColor(Color.BLACK);
+						if((i == 1 && this.p.selectedSDS == true) || (i == 2 && this.p.selectedH == true) || (i == 3 && this.p.selectedA == true) || (i == 4 && this.p.selectedE == true)
+								|| (i == 5 && this.p.selectedF == true) || (i == 6 && this.p.selectedT == true)) {
+							buttonSelected = this.p.buttons.get(i);//on recupére le bouton sélectionné si il existe
+						}
+						g.drawRect(this.p.buttons.get(i).x, this.p.buttons.get(i).y, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le contour du bouton
+						g.setFont(new Font("b", 5, 20));
+						g.drawString(this.p.buttons.get(i).text, this.p.buttons.get(i).x+ this.p.buttons.get(i).width/12, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width/3.1));//le texte du bouton
+						if(i == 1) {
+							g.setFont(new Font("b", 5, 50));
+							g.drawString(Integer.toString(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).nbSacDeSable), this.p.buttons.get(i).x+ this.p.buttons.get(i).width*3/12, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width*10/12));
+						}else if(i == 2) {
+							g.setFont(new Font("b", 5, 50));
+							g.drawString(Integer.toString(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).nbHelico), this.p.buttons.get(i).x+ this.p.buttons.get(i).width*3/12, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width*10/12));
+						}
 					}
-					g.drawRect(this.p.buttons.get(i).x, this.p.buttons.get(i).y, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le contour du bouton
-					g.setFont(new Font("b", 5, 20));
-					g.drawString(this.p.buttons.get(i).text, this.p.buttons.get(i).x+ this.p.buttons.get(i).width/12, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width/3.1));//le texte du bouton
-					if(i == 1) {
-						g.setFont(new Font("b", 5, 50));
-						g.drawString(Integer.toString(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).nbSacDeSable), this.p.buttons.get(i).x+ this.p.buttons.get(i).width*3/12, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width*10/12));
-					}else if(i == 2) {
-						g.setFont(new Font("b", 5, 50));
-						g.drawString(Integer.toString(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).nbHelico), this.p.buttons.get(i).x+ this.p.buttons.get(i).width*3/12, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width*10/12));
+				}else if(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).classe == Classe.navigateur) {
+					for(int j = 0; j < this.p.nbJoueur; j++) {
+						int i = j+7;
+						g.setColor(this.p.buttons.get(i).c);
+						g.fillRect(this.p.buttons.get(i).x - this.wdWidth/12, this.p.buttons.get(i).y-this.wdHeight*9/12, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le fond du bouton
+						g.setColor(Color.BLACK);
+						g.drawRect(this.p.buttons.get(i).x - this.wdWidth/12, this.p.buttons.get(i).y-this.wdHeight*9/12, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le contour du bouton
+						g.setFont(new Font("b", 5, 20));
+						g.drawString(this.p.buttons.get(i).text, 0, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width/3.1));//le texte du bouton
+						if(this.p.navigPlayerSelected.numJ != 99 && this.p.navigPlayerSelected.numJ == i-7) {
+							g.setColor(Color.RED);
+							g.drawRect(this.p.buttons.get(i).x - this.wdWidth/12, this.p.buttons.get(i).y-this.wdHeight*9/12, this.p.buttons.get(i).width, this.p.buttons.get(i).height);
+						}
 					}
 				}
-			}else if(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).classe == Classe.navigateur) {
-				for(int j = 0; j < this.p.nbJoueur; j++) {
-					int i = j+7;
-					g.setColor(this.p.buttons.get(i).c);
-					g.fillRect(this.p.buttons.get(i).x - this.wdWidth/12, this.p.buttons.get(i).y-this.wdHeight*9/12, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le fond du bouton
-					g.setColor(Color.BLACK);
-					g.drawRect(this.p.buttons.get(i).x - this.wdWidth/12, this.p.buttons.get(i).y-this.wdHeight*9/12, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le contour du bouton
-					g.setFont(new Font("b", 5, 20));
-					g.drawString(this.p.buttons.get(i).text, 0, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width/3.1));//le texte du bouton
-				}
-				}
+			}
 			//on fait le contour en rouge du bonton sélectionné
 			g.setColor(Color.RED);
 			g.drawRect(buttonSelected.x, buttonSelected.y, buttonSelected.width, buttonSelected.height);
