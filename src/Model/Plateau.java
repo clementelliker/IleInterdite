@@ -305,7 +305,8 @@ public class Plateau {
 				for(int i = 0; i < this.cases.size(); i++) {//on parcours toutes les cases
 					if(mousePos.x > this.cases.get(i).x && mousePos.x < this.cases.get(i).x + this.cases.get(i).width && mousePos.y > this.cases.get(i).y 
 							&& mousePos.y < this.cases.get(i).y + this.cases.get(i).height 
-							&& (this.cases.get(i).etat != Etat.submerge || this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.plongueur)) {//on vérifie si la case est celle sur laquelle on a cliquer et qu'elle n'est pas submergée ou qu'on est un plongueur
+							&& (this.cases.get(i).etat != Etat.submerge || this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.plongueur
+							|| this.navigPlayerSelected.classe == Classe.plongueur)) {//on vérifie si la case est celle sur laquelle on a cliquer et qu'elle n'est pas submergée ou qu'on est un plongueur
 						caseClicked = this.cases.get(i);
 						realCase = true;
 						
@@ -340,9 +341,10 @@ public class Plateau {
 						}
 					}
 				}
-				if((this.sontAdjacentes(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked) == true && realCase == true) 
+				if(((this.sontAdjacentes(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked) == true && realCase == true) 
 						|| (this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.explorateur && this.sontDiagonales(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked) == true) 
-						|| (this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.pilote && realCase == true && this.joueurs.get(this.tourJ%this.nbJoueur).pos != caseClicked)) {//on vérifie si elle est adjacente à notre personnage ou si on est un pilote ou si on est explorateur et en diagonale
+						|| (this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.pilote && realCase == true && this.joueurs.get(this.tourJ%this.nbJoueur).pos != caseClicked))
+						&& this.navigPlayerSelected.numJ == 99) {//on vérifie si elle est adjacente à notre personnage ou si on est un pilote ou si on est explorateur et en diagonale
 					this.joueurs.get(this.tourJ%this.nbJoueur).pos.j.remove(this.joueurs.get(this.tourJ%this.nbJoueur));//on enlève le joueurs de la liste de sa case précédente
 					this.joueurs.get(this.tourJ%this.nbJoueur).pos = caseClicked;//on déplace le joueur sur sa nouvelle case
 					caseClicked.j.add(this.joueurs.get(this.tourJ%this.nbJoueur));//on ajoute le joueur à la liste de sa nouvelle case
