@@ -24,6 +24,8 @@ public class Plateau {
 	public boolean selectedE;
 	public boolean selectedF;
 	public boolean selectedT;
+	public int selectClasseJ;
+	public ArrayList<Classe> tempoClasse;
 	
 	public Plateau() {
 		/*
@@ -45,6 +47,8 @@ public class Plateau {
 		this.selectedE = false;
 		this.selectedF = false;
 		this.selectedT = false;
+		this.selectClasseJ = 1;
+		this.tempoClasse = new ArrayList<Classe>();
 	}
 	
 	public void linkWindow(Fenetre wd) {
@@ -149,7 +153,7 @@ public class Plateau {
 		}	
 		//on initialise les joueurs
 		for(int i = 0; i < this.nbJoueur; i++) {
-			this.joueurs.add(new Joueur(this.wd, this, i));
+			this.joueurs.add(new Joueur(this.wd, this, i, this.tempoClasse.get(i)));
 		}
 	}
 
@@ -172,11 +176,36 @@ public class Plateau {
 					}else if(this.buttons.get(i).text == "4J") {
 						this.nbJoueur = 4;
 					}
-					this.eP = EtatPlateau.Jeu;//on change l'etat du plateau
-					for(int j = 0; j < 4; j++) {//on enleve les boutons
-						this.buttons.remove(0);
-					}
+					this.eP = EtatPlateau.MenuSelectionClasse;//on change l'etat du plateau
+					this.buttons.removeAll(buttons);//on enleve les boutons
 					break;
+				}
+			}
+		}else if(this.eP == EtatPlateau.MenuSelectionClasse) {
+			for(int i = 0; i < this.buttons.size(); i++) {//on parcourt les 6 boutons
+				if(mousePos.x > this.buttons.get(i).x && mousePos.x < this.buttons.get(i).x + this.buttons.get(i).width
+						&& mousePos.y > this.buttons.get(i).y && mousePos.y < this.buttons.get(i).y + this.buttons.get(i).height) {//on regarde si on a cliqué sur un bouton
+					boolean changed = false;
+					if(this.buttons.get(i).text == "Pilote") {
+						changed = this.checkClasse(Classe.pilote);
+					}else if(this.buttons.get(i).text == "Ingénieur") {
+						changed = this.checkClasse(Classe.ingenieur);
+					}else if(this.buttons.get(i).text == "Explorateur") {
+						changed = this.checkClasse(Classe.explorateur);
+					}else if(this.buttons.get(i).text == "Navigateur") {
+						changed = this.checkClasse(Classe.navigateur);
+					}else if(this.buttons.get(i).text == "Plongueur") {
+						changed = this.checkClasse(Classe.plongueur);
+					}else if(this.buttons.get(i).text == "Messager") {
+						changed = this.checkClasse(Classe.messager);
+					}
+					if(changed == true) {
+						this.selectClasseJ++;
+						if(this.selectClasseJ > this.nbJoueur) {
+							this.buttons.removeAll(buttons);
+							this.eP = EtatPlateau.Jeu;
+						}
+					}						
 				}
 			}
 		}else if(this.eP == EtatPlateau.Jeu) {
@@ -247,8 +276,8 @@ public class Plateau {
 							//System.out.println("1 " + Boolean.toString(i == 7+j));
 							//System.out.println("2 " + Boolean.toString(this.joueurs.get(this.tourJ%this.nbJoueur).pos == this.joueurs.get(j).pos));
 							//System.out.println("3 " + Boolean.toString(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(cléSelected) > 0));
-							if(i == 7+j && this.joueurs.get(this.tourJ%this.nbJoueur).pos == this.joueurs.get(j).pos && this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(cléSelected)
-									> 0) {//on regarde si le joueur est sur la même case et si il peut donner la clé
+							if(i == 7+j &&  this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(cléSelected)> 0
+									&& (this.joueurs.get(this.tourJ%this.nbJoueur).pos == this.joueurs.get(j).pos || this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.messager)) {//on regarde si le joueur est sur la même case et si il peut donner la clé, s'il est messager il n'a pas besoin d'etre sur la meme case
 								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(cléSelected, this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(cléSelected)-1);
 								this.joueurs.get(j).clef.set(cléSelected, this.joueurs.get(j).clef.get(cléSelected)+1);
 								this.unselecting();
@@ -259,14 +288,18 @@ public class Plateau {
 			}
 			if(this.actionRestante != 0) {//on vérifie qu'on a encore des actions restantes
 				Case caseClicked = new Case();
+				boolean realCase = false;
 				for(int i = 0; i < this.cases.size(); i++) {//on parcours toutes les cases
 					if(mousePos.x > this.cases.get(i).x && mousePos.x < this.cases.get(i).x + this.cases.get(i).width && mousePos.y > this.cases.get(i).y 
-							&& mousePos.y < this.cases.get(i).y + this.cases.get(i).height && this.cases.get(i).etat != Etat.submerge) {//on vérifie si la case est celle sur laquelle on a cliquer et qu'elle n'est pas submergée
+							&& mousePos.y < this.cases.get(i).y + this.cases.get(i).height 
+							&& (this.cases.get(i).etat != Etat.submerge || this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.plongueur)) {//on vérifie si la case est celle sur laquelle on a cliquer et qu'elle n'est pas submergée ou qu'on est un plongueur
 						caseClicked = this.cases.get(i);
+						realCase = true;
+						
 					}
 				}
 				if(this.joueurs.get(this.tourJ%this.nbJoueur).pos == caseClicked) {//on regarde si on a cliqué sur la case de notre personnage
-					if(caseClicked.type != caseType.heliport && caseClicked.type != caseType.normal) {
+					if(caseClicked.type != caseType.heliport && caseClicked.type != caseType.normal) {//on regarde si on est sur une case à artefact
 						if(caseClicked.type == caseType.eau) {
 							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(0) >= 4 && this.artefactOwned.get(0) == 0) {
 								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(0,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(0) - 4);
@@ -294,16 +327,32 @@ public class Plateau {
 						}
 					}
 				}
-				if(this.sontAdjacentes(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked) == true) {//on vérifie si elle est adjacente à notre personnage
+				if((this.sontAdjacentes(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked) == true && realCase == true) 
+						|| (this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.explorateur && this.sontDiagonales(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked) == true) 
+						|| (this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.pilote && realCase == true && this.joueurs.get(this.tourJ%this.nbJoueur).pos != caseClicked)) {//on vérifie si elle est adjacente à notre personnage ou si on est un pilote ou si on est explorateur et en diagonale
 					this.joueurs.get(this.tourJ%this.nbJoueur).pos.j.remove(this.joueurs.get(this.tourJ%this.nbJoueur));//on enlève le joueurs de la liste de sa case précédente
 					this.joueurs.get(this.tourJ%this.nbJoueur).pos = caseClicked;//on déplace le joueur sur sa nouvelle case
 					caseClicked.j.add(this.joueurs.get(this.tourJ%this.nbJoueur));//on ajoute le joueur à la liste de sa nouvelle case
 					this.actionRestante--;//on décremente le nombre d'actions restantes
-				}
+				}	
 			}
 		}
 	}
 	
+	private boolean sontDiagonales(Case pos, Case caseClicked) {
+		return Maths.distance(pos.x, pos.y, caseClicked.x, caseClicked.y) == java.lang.Math.sqrt(2*(java.lang.Math.pow(this.wd.wdHeight/6, 2)));
+	}
+
+	private boolean checkClasse(Classe c) {
+		for(int i = 0; i < this.selectClasseJ-1; i++) {
+			if(this.tempoClasse.get(i) == c) {
+				return false;
+			}
+		}
+		this.tempoClasse.add(c);
+		return true;
+	}
+
 	public void unselecting() {
 		this.selectedSDS = false;
 		this.selectedH = false;
@@ -385,6 +434,7 @@ public class Plateau {
 		}else {//si toute l'île est submergée
 			System.out.println("Ile.exe a cesse de fonctionner");
 		}
+		this.joueurs.get(this.tourJ%this.nbJoueur).ingeAssech = false;//on remet la capacité de faire des doubles asséchement a 0 pour l'ingénieur
 		this.actionRestante = 3;//on reset le nombre d'action restante
 		this.tourJ++;//on passe au joueur suivant
 		this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS = false;
@@ -428,21 +478,31 @@ public class Plateau {
 		 * Effectue les actions concernant le clique droit
 		 * @args: -mousePos: position de la souris au moment du clique
 		 */
-		if(this.actionRestante != 0) {//on vérifie que l'on effectuer un action
-			Case caseClicked = new Case();
-			for(int i = 0; i < this.cases.size(); i++) {//on parcourt toutes les cases
-				if(mousePos.x > this.cases.get(i).x && mousePos.x < this.cases.get(i).x + this.cases.get(i).width && mousePos.y > this.cases.get(i).y 
-						&& mousePos.y < this.cases.get(i).y + this.cases.get(i).height && this.cases.get(i).etat != Etat.submerge) {//on regarde si c'est la case sur laquelle on a cliqué et si elle n'est pas déjà submergée
-					caseClicked = this.cases.get(i);
-				}
+		Case caseClicked = new Case();
+		for(int i = 0; i < this.cases.size(); i++) {//on parcourt toutes les cases
+			if(mousePos.x > this.cases.get(i).x && mousePos.x < this.cases.get(i).x + this.cases.get(i).width && mousePos.y > this.cases.get(i).y 
+					&& mousePos.y < this.cases.get(i).y + this.cases.get(i).height && this.cases.get(i).etat != Etat.submerge) {//on regarde si c'est la case sur laquelle on a cliqué et si elle n'est pas déjà submergée
+				caseClicked = this.cases.get(i);
 			}
-			if(this.sontAdjacentes(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked) == true || caseClicked == this.joueurs.get(this.tourJ%this.nbJoueur).pos) {//on regarde si la case sur laquelle on a cliqué est adjacente ou celle sur laquelle le joueur est déjà
+		}
+		if(this.actionRestante != 0) {//on vérifie que l'on effectuer un action
+			if(this.sontAdjacentes(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked) == true || caseClicked == this.joueurs.get(this.tourJ%this.nbJoueur).pos
+					|| (this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.explorateur && this.sontDiagonales(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked))) {//on regarde si la case sur laquelle on a cliqué est adjacente ou celle sur laquelle le joueur est déjà
 				if(caseClicked.etat == Etat.innonde) {//on vérifie que la case est dans l'état innondé
-					this.actionRestante--;//on décrément le nombre d'actions restante
+					if(this.joueurs.get(this.tourJ%this.nbJoueur).classe != Classe.ingenieur) {//on regarde si c'est un ingénieur
+						this.actionRestante--;//on décrément le nombre d'actions restante
+					}else {
+						if(this.joueurs.get(this.tourJ%this.nbJoueur).ingeAssech == false) {
+							this.joueurs.get(this.tourJ%this.nbJoueur).ingeAssech = true;
+						}else {
+							this.joueurs.get(this.tourJ%this.nbJoueur).ingeAssech = false;
+							this.actionRestante--;
+						}
+					}
 					caseClicked.etat = Etat.normale;//on modifie l'état de la case modifiée
 				}
 			}
-			if(this.selectedSDS == true && this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable > 0 && this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS == false) {
+			if(this.selectedSDS == true && this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable > 0 && this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS == false) {//utilisation du Sac de Sable
 				if(caseClicked.etat == Etat.innonde) {//on vérifie que la case est dans l'état innondé
 					caseClicked.etat = Etat.normale;//on modifie l'état de la case modifiée
 					this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable--;
@@ -450,7 +510,24 @@ public class Plateau {
 					this.selectedSDS = false;
 				}
 			}
-			if(this.selectedH == true && this.joueurs.get(this.tourJ%this.nbJoueur).usedH == false) {
+			if(this.selectedH == true && this.joueurs.get(this.tourJ%this.nbJoueur).usedH == false) {//utilisation de l'hélico
+				this.joueurs.get(this.tourJ%this.nbJoueur).pos.j.remove(this.joueurs.get(this.tourJ%this.nbJoueur));//on enlève le joueurs de la liste de sa case précédente
+				this.joueurs.get(this.tourJ%this.nbJoueur).pos = caseClicked;//on déplace le joueur sur sa nouvelle case
+				caseClicked.j.add(this.joueurs.get(this.tourJ%this.nbJoueur));//on ajoute le joueur à la liste de sa nouvelle case
+				this.joueurs.get(this.tourJ%this.nbJoueur).nbHelico--;
+				this.joueurs.get(this.tourJ%this.nbJoueur).usedH = true;
+				this.selectedH = false;
+			}
+		}else {
+			if(this.selectedSDS == true && this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable > 0 && this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS == false) {//utilisation du Sac de Sable
+				if(caseClicked.etat == Etat.innonde) {//on vérifie que la case est dans l'état innondé
+					caseClicked.etat = Etat.normale;//on modifie l'état de la case modifiée
+					this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable--;
+					this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS = true;
+					this.selectedSDS = false;
+				}
+			}
+			if(this.selectedH == true && this.joueurs.get(this.tourJ%this.nbJoueur).usedH == false) {//utilisation de l'hélico
 				this.joueurs.get(this.tourJ%this.nbJoueur).pos.j.remove(this.joueurs.get(this.tourJ%this.nbJoueur));//on enlève le joueurs de la liste de sa case précédente
 				this.joueurs.get(this.tourJ%this.nbJoueur).pos = caseClicked;//on déplace le joueur sur sa nouvelle case
 				caseClicked.j.add(this.joueurs.get(this.tourJ%this.nbJoueur));//on ajoute le joueur à la liste de sa nouvelle case
@@ -461,12 +538,21 @@ public class Plateau {
 		}
 	}
 
-	public void setupMenu() {
+	public void setupMenuJoueur() {
 		//on ajoute les boutons de selection de nombre de joueurs
 		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*3/20, this.wd.wdHeight*12/13, this.wd.wdWidth/10, this.wd.wdHeight/10, "1J", new Color(255,255,0)));
 		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*7/20, this.wd.wdHeight*12/13, this.wd.wdWidth/10, this.wd.wdHeight/10, "2J", new Color(255,0,0)));
 		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*11/20, this.wd.wdHeight*12/13, this.wd.wdWidth/10, this.wd.wdHeight/10, "3J", new Color(25,64,255)));
 		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*3/4, this.wd.wdHeight*12/13, this.wd.wdWidth/10, this.wd.wdHeight/10, "4J", new Color(0,255,0)));
+	}
+	
+	public void setupMenuClasse() {
+		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth/12, this.wd.wdHeight/2, this.wd.wdWidth/6, this.wd.wdHeight/12, "Pilote", new Color(198, 237, 255)));
+		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*5/12, this.wd.wdHeight/2, this.wd.wdWidth/6, this.wd.wdHeight/12, "Ingénieur", new Color(252, 231, 20)));
+		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*9/12, this.wd.wdHeight/2, this.wd.wdWidth/6, this.wd.wdHeight/12, "Explorateur", new Color(23, 174, 0)));
+		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth/12, this.wd.wdHeight*9/12, this.wd.wdWidth/6, this.wd.wdHeight/12, "Navigateur", new Color(0, 145, 174)));
+		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*5/12, this.wd.wdHeight*9/12, this.wd.wdWidth/6, this.wd.wdHeight/12, "Plongueur", new Color(17, 0, 174)));
+		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*9/12, this.wd.wdHeight*9/12, this.wd.wdWidth/6, this.wd.wdHeight/12, "Messager", new Color(244, 250, 255)));
 	}
 
 	public boolean win() {
@@ -513,7 +599,9 @@ public class Plateau {
 			isPlayerSubmerged = true;
 			nbCaseAdjaJoueur = 0;
 			for(int j = 0; j < this.cases.size(); j++) {
-				if(sontAdjacentes(this.joueurs.get(i).pos, this.cases.get(j)) == true && this.cases.get(j).etat != Etat.submerge) {
+				if(sontAdjacentes(this.joueurs.get(i).pos, this.cases.get(j)) == true && this.cases.get(j).etat != Etat.submerge 
+						|| (this.joueurs.get(i).classe == Classe.explorateur && this.sontDiagonales(this.joueurs.get(i).pos, this.cases.get(j)))
+						|| this.joueurs.get(i).classe == Classe.plongueur) {
 					isPlayerSubmerged = false;
 				}
 			}

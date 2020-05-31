@@ -314,7 +314,58 @@ public class Fenetre extends JPanel{
 			g.setColor(noir);
 			g.setFont(new Font("win", 5, 60));
 			g.drawString("Vous avez perdu", this.wdWidth/6, this.wdHeight*15/64);//on ecrit Ile Interdite
+		}else if(this.p.eP == EtatPlateau.MenuSelectionClasse) {
+			g.setColor(mer);//paint le backgroung (la mer)
+			g.fillRect(0,0,this.wdWidth,this.wdHeight + this.basHeight);
+			g.setColor(plage);//desine la palge en fond
+			g.fillRect(this.wdWidth*3/8, this.wdHeight/8, this.wdWidth/4, this.wdHeight*3/4);
+			g.fillRect(this.wdWidth/8, this.wdHeight*3/8, this.wdWidth*3/4, this.wdHeight/4);
+			g.fillRect(this.wdWidth/4, this.wdHeight/4, this.wdWidth/2, this.wdHeight/2);
+			g.setColor(jungle);//on met la jungle par dessus
+			g.fillRect(this.wdWidth/4, this.wdHeight*3/8, this.wdWidth/2, this.wdHeight/4);
+			g.fillRect(this.wdWidth*3/8, this.wdHeight/4, this.wdWidth/4, this.wdHeight/2);
+			g.setColor(orange);
+			g.fillRect(this.wdWidth/32, this.wdHeight/20, this.wdWidth*11/12, this.wdWidth*5/24);
+			g.setColor(bleuF);
+			g.drawRect(this.wdWidth/32, this.wdHeight/20, this.wdWidth*11/12, this.wdWidth*5/24);
+			g.setColor(noir);
+			g.setColor(noir);
+			g.setFont(new Font("title", 5, 50));
+			g.drawString("Sélection de la classe", this.wdWidth/7, this.wdHeight*3/24);//on écrit sélection de la classe
+			String str = "de J" + Integer.toString(this.p.selectClasseJ);
+			g.drawString(str, this.wdWidth*10/24, this.wdHeight*6/24);//on écrit de J#
+			for(int i = 0; i < 6; i++) {//on dessine les 6 boutons
+				g.setColor(this.p.buttons.get(i).c);
+				g.fillRect(this.p.buttons.get(i).x, this.p.buttons.get(i).y, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le background du bouton
+				g.setColor(noir);
+				g.drawRect(this.p.buttons.get(i).x, this.p.buttons.get(i).y, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le contour du bouton
+				g.setColor(noir);
+				int tailleText = 0;
+				switch(i) {//on choisit la taille du texte en fonction du message (devrait être en attribut de bouton)
+				case 0: 
+					tailleText = 30;
+					break;
+				case 1: 
+					tailleText = 20;
+					break;
+				case 2:
+					tailleText = 17;
+					break;
+				case 3: 
+					tailleText = 19;
+					break;
+				case 4: 
+					tailleText = 20;
+					break;
+				case 5: 
+					tailleText = 20;
+					break;
+				}
+				g.setFont(new Font("newbutton", 5, tailleText));	
+				g.drawString(this.p.buttons.get(i).text, this.p.buttons.get(i).x + this.wdWidth/35, this.p.buttons.get(i).y + this.wdHeight/15);//le texte du bouton
+			}
 		}
+		
 	}
 	
 	private void drawInvJoueur(Graphics g, int numJoueur, int x, int y) {

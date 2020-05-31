@@ -6,4 +6,5 @@ public enum EtatPlateau {
 	Jeu,
 	MenudeFinGagnant,
 	MenudeFinPerdant,
+	MenuSelectionClasse,
 }

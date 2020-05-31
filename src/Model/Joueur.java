@@ -17,8 +17,10 @@ public class Joueur {
 	public int nbHelico;
 	public boolean usedSDS;
 	public boolean usedH;
+	public Classe classe;
+	public boolean ingeAssech;
 	
-	public Joueur(Fenetre wd, Plateau p, int numJ) {	
+	public Joueur(Fenetre wd, Plateau p, int numJ, Classe c) {	
 		/*
 		 * Construit une instance de joueur
 		 * @args: -wd: fenêtre liée au joueur
@@ -39,6 +41,8 @@ public class Joueur {
 		this.nbSacDeSable = 0;
 		this.usedSDS = false;
 		this.usedH = false;
+		this.classe = c;
+		this.ingeAssech = false;
 	}
 
 }

@@ -25,8 +25,12 @@ public class Main {
 		cadre.add(wd);//on assemble la fenêtre
 		cadre.setSize(wd.wdWidth,wd.wdHeight+wd.basHeight);//on définie les dimensions du cadre
 		cadre.setVisible(true);//on affiche la fenêtre
-		wd.p.setupMenu();//on créer ce qu'il faut pour le premier menu
+		wd.p.setupMenuJoueur();//on créer ce qu'il faut pour le premier menu
 		while(wd.p.eP == EtatPlateau.MenuSelectionNbJoueur) {//permet d'avoir la fenêtre à jour en continue
+			wd.repaint();//met a jour les composants graphiques
+		}
+		wd.p.setupMenuClasse();
+		while(wd.p.eP == EtatPlateau.MenuSelectionClasse) {//permet d'avoir la fenêtre à jour en continue
 			wd.repaint();//met a jour les composants graphiques
 		}
 		wd.p.setupPlateau();//on créer les cases/joueurs/boutons
