@@ -45,4 +45,9 @@ public class Joueur {
 		this.ingeAssech = false;
 	}
 
+	public Joueur(int numJ) {
+		// TODO Auto-generated constructor stub
+		this.numJ = numJ;
+	}
+
 }

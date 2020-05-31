@@ -202,7 +202,17 @@ public class Fenetre extends JPanel{
 						g.drawString(Integer.toString(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).nbHelico), this.p.buttons.get(i).x+ this.p.buttons.get(i).width*3/12, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width*10/12));
 					}
 				}
-			}
+			}else if(this.p.joueurs.get(this.p.tourJ%this.p.nbJoueur).classe == Classe.navigateur) {
+				for(int j = 0; j < this.p.nbJoueur; j++) {
+					int i = j+7;
+					g.setColor(this.p.buttons.get(i).c);
+					g.fillRect(this.p.buttons.get(i).x - this.wdWidth/12, this.p.buttons.get(i).y-this.wdHeight*9/12, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le fond du bouton
+					g.setColor(Color.BLACK);
+					g.drawRect(this.p.buttons.get(i).x - this.wdWidth/12, this.p.buttons.get(i).y-this.wdHeight*9/12, this.p.buttons.get(i).width, this.p.buttons.get(i).height);//le contour du bouton
+					g.setFont(new Font("b", 5, 20));
+					g.drawString(this.p.buttons.get(i).text, 0, (int)(this.p.buttons.get(i).y + this.p.buttons.get(i).width/3.1));//le texte du bouton
+				}
+				}
 			//on fait le contour en rouge du bonton sélectionné
 			g.setColor(Color.RED);
 			g.drawRect(buttonSelected.x, buttonSelected.y, buttonSelected.width, buttonSelected.height);

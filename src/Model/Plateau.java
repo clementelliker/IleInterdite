@@ -26,6 +26,7 @@ public class Plateau {
 	public boolean selectedT;
 	public int selectClasseJ;
 	public ArrayList<Classe> tempoClasse;
+	public Joueur navigPlayerSelected;
 	
 	public Plateau() {
 		/*
@@ -49,6 +50,7 @@ public class Plateau {
 		this.selectedT = false;
 		this.selectClasseJ = 1;
 		this.tempoClasse = new ArrayList<Classe>();
+		this.navigPlayerSelected = new Joueur(99);
 	}
 	
 	public void linkWindow(Fenetre wd) {
@@ -284,7 +286,17 @@ public class Plateau {
 							}
 						}
 					}
+				}else if(i > 6 && mousePos.x > this.buttons.get(i).x-this.wd.wdWidth/12 && mousePos.x < this.buttons.get(i).x-this.wd.wdWidth/12 + this.buttons.get(i).width
+						&& mousePos.y > this.buttons.get(i).y-this.wd.wdHeight*9/12 && mousePos.y < this.buttons.get(i).y-this.wd.wdHeight*9/12 + this.buttons.get(i).height
+						&& this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.navigateur && this.selectedA != true && this.selectedE != true 
+						&& this.selectedF != true && this.selectedT != true) {
+					if(i-7 != this.joueurs.get(this.tourJ%this.nbJoueur).numJ) {
+						this.navigPlayerSelected = this.joueurs.get(i-7);
+					}
+					
+					
 				}
+				
 			}
 			if(this.actionRestante != 0) {//on vérifie qu'on a encore des actions restantes
 				Case caseClicked = new Case();
@@ -334,7 +346,18 @@ public class Plateau {
 					this.joueurs.get(this.tourJ%this.nbJoueur).pos = caseClicked;//on déplace le joueur sur sa nouvelle case
 					caseClicked.j.add(this.joueurs.get(this.tourJ%this.nbJoueur));//on ajoute le joueur à la liste de sa nouvelle case
 					this.actionRestante--;//on décremente le nombre d'actions restantes
-				}	
+				}else if(this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.navigateur && this.navigPlayerSelected.numJ != 99) {
+					if((this.sontAdjacentes(this.navigPlayerSelected.pos, caseClicked) == true && realCase == true)
+							|| (this.navigPlayerSelected.classe == Classe.explorateur && this.sontDiagonales(this.navigPlayerSelected.pos, caseClicked) == true) 
+							|| (this.navigPlayerSelected.classe == Classe.pilote && realCase == true && this.navigPlayerSelected.pos != caseClicked)) {
+						this.navigPlayerSelected.pos.j.remove(this.navigPlayerSelected);//on enlève le joueurs de la liste de sa case précédente
+						this.navigPlayerSelected.pos = caseClicked;//on déplace le joueur sur sa nouvelle case
+						caseClicked.j.add(this.navigPlayerSelected);//on ajoute le joueur à la liste de sa nouvelle case
+						this.actionRestante--;//on décremente le nombre d'actions restantes
+						this.navigPlayerSelected = new Joueur(99);
+					}
+				}
+				
 			}
 		}
 	}
