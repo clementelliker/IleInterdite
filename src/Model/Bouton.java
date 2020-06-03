@@ -38,7 +38,10 @@ public class Bouton {
 	}
 
 	public Bouton() {
-		// TODO Auto-generated constructor stub
+		/*
+		 * Construit un bouton vide
+		 * @ args: 
+		 */
 	}
 
 }

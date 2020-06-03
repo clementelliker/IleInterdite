@@ -17,16 +17,16 @@ public class Plateau {
 	public int tourJ;//numéro du tour actuel
 	public int nbJoueur;//nombre de joueurs
 	public EtatPlateau eP;//etat actuel du plateau
-	public ArrayList<Integer> artefactOwned;
-	public boolean selectedSDS;
-	public boolean selectedH;
-	public boolean selectedA;
-	public boolean selectedE;
-	public boolean selectedF;
-	public boolean selectedT;
-	public int selectClasseJ;
-	public ArrayList<Classe> tempoClasse;
-	public Joueur navigPlayerSelected;
+	public ArrayList<Integer> artefactOwned;//liste des artefacts récupérés
+	public boolean selectedSDS;//détermine si on a appuyer sur le bouton SDS
+	public boolean selectedH;//détermine si on a appuyer sur le bouton H
+	public boolean selectedA;//détermine si on a appuyer sur le bouton Artefact Air
+	public boolean selectedE;//détermine si on a appuyer sur le bouton Artefact Eau
+	public boolean selectedF;//détermine si on a appuyer sur le bouton Artefact Feu
+	public boolean selectedT;//détermine si on a appuyer sur le bouton Artefact Terre
+	public int selectClasseJ;//indique quel joueur est en train de choisir sa classe
+	public ArrayList<Classe> tempoClasse;//contient les classes de chaque joueurs en attendant de créer les instances Joueur
+	public Joueur navigPlayerSelected;//référence au joueur qui est sélectionné par le navigateur
 	
 	public Plateau() {
 		/*
@@ -39,18 +39,19 @@ public class Plateau {
 		this.actionRestante = 3;//on initialise le nombre d'actions restantes
 		this.eP = EtatPlateau.MenuSelectionNbJoueur;//on commence par selectionner le nombre de joueurs
 		this.artefactOwned = new ArrayList<Integer>();//on créer la liste des artefacts obtenues
-		for(int i = 0; i < 4; i++) {
+		for(int i = 0; i < 4; i++) {//on ajoute un liste vide d'artefacts
 			this.artefactOwned.add(0);
 		}
+		//les boutons ne sont pas sélectionnés au début
 		this.selectedSDS = false;
 		this.selectedH = false;
 		this.selectedA = false;
 		this.selectedE = false;
 		this.selectedF = false;
 		this.selectedT = false;
-		this.selectClasseJ = 1;
-		this.tempoClasse = new ArrayList<Classe>();
-		this.navigPlayerSelected = new Joueur(99);
+		this.selectClasseJ = 1;//on commence par le J1
+		this.tempoClasse = new ArrayList<Classe>();//au début personne n'a sélectionné de classe
+		this.navigPlayerSelected = new Joueur(99);//le nombre 99 personne d'indiquer que personne n'est sélectionné
 	}
 	
 	public void linkWindow(Fenetre wd) {
@@ -164,222 +165,258 @@ public class Plateau {
 		 * Realise les actions concernants le clique gauche
 		 *@args: -mousePos: position de la souris au moment du clique
 		 */
-		if(this.eP == EtatPlateau.MenuSelectionNbJoueur) {//on regared dans quel menu on est
-			for(int i = 0; i < 4; i++) {//on parcourt les 4 boutons
-				if(mousePos.x > this.buttons.get(i).x && mousePos.x < this.buttons.get(i).x + this.buttons.get(i).width
-						&& mousePos.y > this.buttons.get(i).y && mousePos.y < this.buttons.get(i).y + this.buttons.get(i).height) {//on regarde si on a cliqué sur un bouton
-					//on selectionne le nombre de joueurs
-					if(this.buttons.get(i).text == "1J") {
-						this.nbJoueur = 1;
-					}else if(this.buttons.get(i).text == "2J") {
-						this.nbJoueur = 2;
-					}else if(this.buttons.get(i).text == "3J") {
-						this.nbJoueur = 3;
-					}else if(this.buttons.get(i).text == "4J") {
-						this.nbJoueur = 4;
-					}
-					this.eP = EtatPlateau.MenuSelectionClasse;//on change l'etat du plateau
-					this.buttons.removeAll(buttons);//on enleve les boutons
-					break;
-				}
-			}
+		if(this.eP == EtatPlateau.MenuSelectionNbJoueur) {//on regarde dans quel menu on est
+			mouse1ClickedMenuSelecNbJoueur(mousePos);
 		}else if(this.eP == EtatPlateau.MenuSelectionClasse) {
-			for(int i = 0; i < this.buttons.size(); i++) {//on parcourt les 6 boutons
-				if(mousePos.x > this.buttons.get(i).x && mousePos.x < this.buttons.get(i).x + this.buttons.get(i).width
-						&& mousePos.y > this.buttons.get(i).y && mousePos.y < this.buttons.get(i).y + this.buttons.get(i).height) {//on regarde si on a cliqué sur un bouton
-					boolean changed = false;
-					if(this.buttons.get(i).text == "Pilote") {
-						changed = this.checkClasse(Classe.pilote);
-					}else if(this.buttons.get(i).text == "Ingénieur") {
-						changed = this.checkClasse(Classe.ingenieur);
-					}else if(this.buttons.get(i).text == "Explorateur") {
-						changed = this.checkClasse(Classe.explorateur);
-					}else if(this.buttons.get(i).text == "Navigateur") {
-						changed = this.checkClasse(Classe.navigateur);
-					}else if(this.buttons.get(i).text == "Plongueur") {
-						changed = this.checkClasse(Classe.plongueur);
-					}else if(this.buttons.get(i).text == "Messager") {
-						changed = this.checkClasse(Classe.messager);
-					}
-					if(changed == true) {
-						this.selectClasseJ++;
-						if(this.selectClasseJ > this.nbJoueur) {
-							this.buttons.removeAll(buttons);
-							this.eP = EtatPlateau.Jeu;
-						}
-					}						
-				}
-			}
+			mouse1ClickedMenuSelecClasse(mousePos);
 		}else if(this.eP == EtatPlateau.Jeu) {
-			for(int i = 0; i < this.buttons.size(); i++) {//on parcours tout les boutons
-				if(mousePos.x > this.buttons.get(i).x && mousePos.x < this.buttons.get(i).x + this.buttons.get(i).width
-						&& mousePos.y > this.buttons.get(i).y && mousePos.y < this.buttons.get(i).y + this.buttons.get(i).height) {
-					if(this.buttons.get(i).text == "Fin de Tour") {//on vérifie si la souris est sur le bouton
-						this.finDeTour();//on fait la fin de tour
-					}
-					if(i == 1) {
-						if(this.selectedSDS == false) {
-							this.unselecting();
-							this.selectedSDS = true;
-						}else {
-							this.selectedSDS = false;
-						}
-					}else if(i == 2) {
-						if(this.selectedH == false) {
-							this.unselecting();
-							this.selectedH = true;
-						}else {
-							this.selectedH = false;
-						}
-					}else if(i == 3) {
-						if(this.selectedA == false) {
-							this.unselecting();
-							this.selectedA = true;
-						}else {
-							this.selectedA = false;
-						}
-						
-					}else if(i == 4) {
-						if(this.selectedE == false) {
-							this.unselecting();
-							this.selectedE = true;
-						}else {
-							this.selectedE = false;
-						}
-						
-					}else if(i == 5) {
-						if(this.selectedF == false) {
-							this.unselecting();
-							this.selectedF = true;
-						}else {
-							this.selectedF = false;
-						}
-						
-					}else if(i == 6) {
-						if(this.selectedT == false) {
-							this.unselecting();
-							this.selectedT = true;
-						}else {
-							this.selectedT = false;
-						}
-						
-					}
-					if(this.selectedA == true || this.selectedE == true || this.selectedF == true || this.selectedT == true && i > 6) {
-						//on cherche la clé sélectionnée
-						int cléSelected = 0;
-						if(this.selectedF == true) {
-							cléSelected = 1;
-						}else if(this.selectedA == true) {
-							cléSelected = 2;
-						}if(this.selectedT == true) {
-							cléSelected = 3;
-						}
-						for(int j = 0; j < this.nbJoueur; j++) {
-							//System.out.println("1 " + Boolean.toString(i == 7+j));
-							//System.out.println("2 " + Boolean.toString(this.joueurs.get(this.tourJ%this.nbJoueur).pos == this.joueurs.get(j).pos));
-							//System.out.println("3 " + Boolean.toString(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(cléSelected) > 0));
-							if(i == 7+j &&  this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(cléSelected)> 0
-									&& (this.joueurs.get(this.tourJ%this.nbJoueur).pos == this.joueurs.get(j).pos || this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.messager)) {//on regarde si le joueur est sur la même case et si il peut donner la clé, s'il est messager il n'a pas besoin d'etre sur la meme case
-								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(cléSelected, this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(cléSelected)-1);
-								this.joueurs.get(j).clef.set(cléSelected, this.joueurs.get(j).clef.get(cléSelected)+1);
-								this.unselecting();
-							}
-						}
-					}
-				}else if(i > 6 && mousePos.x > this.buttons.get(i).x-this.wd.wdWidth/12 && mousePos.x < this.buttons.get(i).x-this.wd.wdWidth/12 + this.buttons.get(i).width
-						&& mousePos.y > this.buttons.get(i).y-this.wd.wdHeight*9/12 && mousePos.y < this.buttons.get(i).y-this.wd.wdHeight*9/12 + this.buttons.get(i).height
-						&& this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.navigateur && this.selectedA != true && this.selectedE != true 
-						&& this.selectedF != true && this.selectedT != true) {
-					if(i-7 != this.joueurs.get(this.tourJ%this.nbJoueur).numJ) {
-						this.unselecting();
-						this.navigPlayerSelected = this.joueurs.get(i-7);
-					}
-					
-					
+			mouse1ClickedJeu(mousePos);
+		}
+	}
+	
+	public void mouse1ClickedMenuSelecNbJoueur(Point mousePos) {
+		/*
+		 * Réalise les actions concernant le clique gauche pour le menu de selection du nombre de joueurs
+		 * @ args: -mousePos: la posiiton de la souris
+		 */
+		for(int i = 0; i < 4; i++) {//on parcourt les 4 boutons
+			if(mousePos.x > this.buttons.get(i).x && mousePos.x < this.buttons.get(i).x + this.buttons.get(i).width
+					&& mousePos.y > this.buttons.get(i).y && mousePos.y < this.buttons.get(i).y + this.buttons.get(i).height) {//on regarde si on a cliqué sur un bouton
+				//on selectionne le nombre de joueurs
+				if(this.buttons.get(i).text == "1J") {
+					this.nbJoueur = 1;
+				}else if(this.buttons.get(i).text == "2J") {
+					this.nbJoueur = 2;
+				}else if(this.buttons.get(i).text == "3J") {
+					this.nbJoueur = 3;
+				}else if(this.buttons.get(i).text == "4J") {
+					this.nbJoueur = 4;
 				}
-				
-			}
-			if(this.actionRestante != 0) {//on vérifie qu'on a encore des actions restantes
-				Case caseClicked = new Case();
-				boolean realCase = false;
-				for(int i = 0; i < this.cases.size(); i++) {//on parcours toutes les cases
-					if(mousePos.x > this.cases.get(i).x && mousePos.x < this.cases.get(i).x + this.cases.get(i).width && mousePos.y > this.cases.get(i).y 
-							&& mousePos.y < this.cases.get(i).y + this.cases.get(i).height 
-							&& (this.cases.get(i).etat != Etat.submerge || this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.plongueur
-							|| this.navigPlayerSelected.classe == Classe.plongueur)) {//on vérifie si la case est celle sur laquelle on a cliquer et qu'elle n'est pas submergée ou qu'on est un plongueur
-						caseClicked = this.cases.get(i);
-						realCase = true;
-						
-					}
-				}
-				if(this.joueurs.get(this.tourJ%this.nbJoueur).pos == caseClicked) {//on regarde si on a cliqué sur la case de notre personnage
-					if(caseClicked.type != caseType.heliport && caseClicked.type != caseType.normal) {//on regarde si on est sur une case à artefact
-						if(caseClicked.type == caseType.eau) {
-							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(0) >= 4 && this.artefactOwned.get(0) == 0) {
-								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(0,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(0) - 4);
-								this.artefactOwned.set(0, 1);
-								this.actionRestante--;
-							}
-						}else if(caseClicked.type == caseType.feu) {
-							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(1) >= 4 && this.artefactOwned.get(1) == 0) {
-								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(1,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(1) - 4);
-								this.artefactOwned.set(1, 1);
-								this.actionRestante--;
-							}
-						}else if(caseClicked.type == caseType.air) {
-							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(2) >= 4 && this.artefactOwned.get(2) == 0) {
-								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(2,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(2) - 4);
-								this.artefactOwned.set(2, 1);
-								this.actionRestante--;
-							}
-						}else if(caseClicked.type == caseType.terre) {
-							if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(3) >= 4 && this.artefactOwned.get(3) == 0) {
-								this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(3,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(3) - 4);
-								this.artefactOwned.set(3, 1);
-								this.actionRestante--;
-							}
-						}
-					}
-				}
-				if(((this.sontAdjacentes(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked) == true && realCase == true) 
-						|| (this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.explorateur && this.sontDiagonales(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked) == true) 
-						|| (this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.pilote && realCase == true && this.joueurs.get(this.tourJ%this.nbJoueur).pos != caseClicked))
-						&& this.navigPlayerSelected.numJ == 99) {//on vérifie si elle est adjacente à notre personnage ou si on est un pilote ou si on est explorateur et en diagonale
-					this.joueurs.get(this.tourJ%this.nbJoueur).pos.j.remove(this.joueurs.get(this.tourJ%this.nbJoueur));//on enlève le joueurs de la liste de sa case précédente
-					this.joueurs.get(this.tourJ%this.nbJoueur).pos = caseClicked;//on déplace le joueur sur sa nouvelle case
-					caseClicked.j.add(this.joueurs.get(this.tourJ%this.nbJoueur));//on ajoute le joueur à la liste de sa nouvelle case
-					this.actionRestante--;//on décremente le nombre d'actions restantes
-				}else if(this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.navigateur && this.navigPlayerSelected.numJ != 99) {
-					if((this.sontAdjacentes(this.navigPlayerSelected.pos, caseClicked) == true && realCase == true)
-							|| (this.navigPlayerSelected.classe == Classe.explorateur && this.sontDiagonales(this.navigPlayerSelected.pos, caseClicked) == true) 
-							|| (this.navigPlayerSelected.classe == Classe.pilote && realCase == true && this.navigPlayerSelected.pos != caseClicked)) {
-						this.navigPlayerSelected.pos.j.remove(this.navigPlayerSelected);//on enlève le joueurs de la liste de sa case précédente
-						this.navigPlayerSelected.pos = caseClicked;//on déplace le joueur sur sa nouvelle case
-						caseClicked.j.add(this.navigPlayerSelected);//on ajoute le joueur à la liste de sa nouvelle case
-						this.actionRestante--;//on décremente le nombre d'actions restantes
-						this.navigPlayerSelected = new Joueur(99);
-					}
-				}
-				
+				this.eP = EtatPlateau.MenuSelectionClasse;//on change l'etat du plateau
+				this.buttons.removeAll(buttons);//on enleve les boutons
+				break;
 			}
 		}
 	}
 	
+	public void mouse1ClickedMenuSelecClasse(Point mousePos) {
+		/*
+		 * Réalise les actions concernant le clique gauche pour le menu de selection de classe
+		 * @ args: -mousePos: la posiiton de la souris
+		 */
+		for(int i = 0; i < this.buttons.size(); i++) {//on parcourt les 6 boutons
+			if(mousePos.x > this.buttons.get(i).x && mousePos.x < this.buttons.get(i).x + this.buttons.get(i).width
+					&& mousePos.y > this.buttons.get(i).y && mousePos.y < this.buttons.get(i).y + this.buttons.get(i).height) {//on regarde si on a cliqué sur un bouton
+				boolean changed = false;
+				//en fonction du bouton on regarde si la classe est disponible et on indique qu'on a changer de classe
+				if(this.buttons.get(i).text == "Pilote") {
+					changed = this.checkClasse(Classe.pilote);
+				}else if(this.buttons.get(i).text == "Ingénieur") {
+					changed = this.checkClasse(Classe.ingenieur);
+				}else if(this.buttons.get(i).text == "Explorateur") {
+					changed = this.checkClasse(Classe.explorateur);
+				}else if(this.buttons.get(i).text == "Navigateur") {
+					changed = this.checkClasse(Classe.navigateur);
+				}else if(this.buttons.get(i).text == "Plongueur") {
+					changed = this.checkClasse(Classe.plongueur);
+				}else if(this.buttons.get(i).text == "Messager") {
+					changed = this.checkClasse(Classe.messager);
+				}
+				if(changed == true) {//si on a choisit une classe
+					this.selectClasseJ++;//on passe au joueur suivant
+					if(this.selectClasseJ > this.nbJoueur) {//si on a choisit touts les classes
+						this.buttons.removeAll(buttons);//on retire les boutons
+						this.eP = EtatPlateau.Jeu;//on change de menu
+					}
+				}						
+			}
+		}
+	}
+	
+	public void mouse1ClickedJeu(Point mousePos) {
+		/*
+		 * Réalise les actions concernant le clique gauche pour le menu de selection de classe
+		 * @ args: -mousePos: la posiiton de la souris
+		 */
+		for(int i = 0; i < this.buttons.size(); i++) {//on parcours tout les boutons
+			if(mousePos.x > this.buttons.get(i).x && mousePos.x < this.buttons.get(i).x + this.buttons.get(i).width
+					&& mousePos.y > this.buttons.get(i).y && mousePos.y < this.buttons.get(i).y + this.buttons.get(i).height) {//on regarde sur quel bouton on a cliqué
+				if(this.buttons.get(i).text == "Fin de Tour") {//on vérifie si la souris est sur le bouton fin de tour
+					this.finDeTour();//on fait la fin de tour
+				}
+				if(i == 1) {//si on est sur le bouton SDS
+					if(this.selectedSDS == false) {//on déselectionne tout les boutons et on selectionne le bon bouton 
+						this.unselecting();
+						this.selectedSDS = true;
+					}else {//sinon on déselection ce bouton
+						this.selectedSDS = false;
+					}
+				}else if(i == 2) {//si on est sur le bouton H
+					if(this.selectedH == false) {//on déselectionne tout les boutons et on selectionne le bon bouton 
+						this.unselecting();
+						this.selectedH = true;
+					}else {//sinon on déselection ce bouton
+						this.selectedH = false;
+					}
+				}else if(i == 3) {//si on est sur le bouton artefact air
+					if(this.selectedA == false) {//on déselectionne tout les boutons et on selectionne le bon bouton 
+						this.unselecting();
+						this.selectedA = true;
+					}else {//sinon on déselection ce bouton
+						this.selectedA = false;
+					}
+					
+				}else if(i == 4) {//si on est sur le bouton artefact eau
+					if(this.selectedE == false) {//on déselectionne tout les boutons et on selectionne le bon bouton 
+						this.unselecting();
+						this.selectedE = true;
+					}else {//sinon on déselection ce bouton
+						this.selectedE = false;
+					}
+					
+				}else if(i == 5) {//si on est sur le bouton artefact feu
+					if(this.selectedF == false) {//on déselectionne tout les boutons et on selectionne le bon bouton 
+						this.unselecting();
+						this.selectedF = true;
+					}else {//sinon on déselection ce bouton
+						this.selectedF = false;
+					}
+					
+				}else if(i == 6) {//si on est sur le bouton artefact terre
+					if(this.selectedT == false) {//on déselectionne tout les boutons et on selectionne le bon bouton 
+						this.unselecting();
+						this.selectedT = true;
+					}else {//sinon on déselection ce bouton
+						this.selectedT = false;
+					}
+					
+				}
+				if(this.selectedA == true || this.selectedE == true || this.selectedF == true || this.selectedT == true && i > 6) {//or regarde si on a sélectionné une clé
+					//on cherche quelle clé est sélectionnée
+					int cléSelected = 0;
+					if(this.selectedF == true) {
+						cléSelected = 1;
+					}else if(this.selectedA == true) {
+						cléSelected = 2;
+					}if(this.selectedT == true) {
+						cléSelected = 3;
+					}
+					for(int j = 0; j < this.nbJoueur; j++) {//on regarde si on a cliqué sur un bouton joueur
+						if(i == 7+j &&  this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(cléSelected)> 0
+								&& (this.joueurs.get(this.tourJ%this.nbJoueur).pos == this.joueurs.get(j).pos || this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.messager)) {//on regarde si le joueur est sur la même case et si il peut donner la clé, s'il est messager il n'a pas besoin d'etre sur la meme case
+							this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(cléSelected, this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(cléSelected)-1);//on retir la clé du donateur
+							this.joueurs.get(j).clef.set(cléSelected, this.joueurs.get(j).clef.get(cléSelected)+1);//on l'ajoute au receveur
+							this.unselecting();//on déselectionne le bouton
+						}
+					}
+				}
+			}else if(i > 6 && mousePos.x > this.buttons.get(i).x-this.wd.wdWidth/12 && mousePos.x < this.buttons.get(i).x-this.wd.wdWidth/12 + this.buttons.get(i).width
+					&& mousePos.y > this.buttons.get(i).y-this.wd.wdHeight*9/12 && mousePos.y < this.buttons.get(i).y-this.wd.wdHeight*9/12 + this.buttons.get(i).height
+					&& this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.navigateur && this.selectedA != true && this.selectedE != true 
+					&& this.selectedF != true && this.selectedT != true) {//on regarde si c'est le navigateur qui a appuyer sur les boutons et haut a gauche
+				if(i-7 != this.joueurs.get(this.tourJ%this.nbJoueur).numJ) {//on regarde quel joueur a été sélectionné
+					this.unselecting();//on déselectionne tout les boutons
+					this.navigPlayerSelected = this.joueurs.get(i-7);//on retient quel joueur a été sélectionné
+				}
+				
+				
+			}
+			
+		}
+		if(this.actionRestante != 0) {//on vérifie qu'on a encore des actions restantes
+			Case caseClicked = new Case();
+			boolean realCase = false;//indique si on a cliqué sur un case
+			for(int i = 0; i < this.cases.size(); i++) {//on parcours toutes les cases
+				if(mousePos.x > this.cases.get(i).x && mousePos.x < this.cases.get(i).x + this.cases.get(i).width && mousePos.y > this.cases.get(i).y 
+						&& mousePos.y < this.cases.get(i).y + this.cases.get(i).height 
+						&& (this.cases.get(i).etat != Etat.submerge || this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.plongueur
+						|| this.navigPlayerSelected.classe == Classe.plongueur)) {//on vérifie si la case est celle sur laquelle on a cliquer et qu'elle n'est pas submergée ou qu'on est un plongueur
+					caseClicked = this.cases.get(i);
+					realCase = true;
+					
+				}
+			}
+			if(this.joueurs.get(this.tourJ%this.nbJoueur).pos == caseClicked) {//on regarde si on a cliqué sur la case de notre personnage
+				if(caseClicked.type != caseType.heliport && caseClicked.type != caseType.normal) {//on regarde si on est sur une case à artefact
+					if(caseClicked.type == caseType.eau) {
+						if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(0) >= 4 && this.artefactOwned.get(0) == 0) {
+							this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(0,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(0) - 4);
+							this.artefactOwned.set(0, 1);
+							this.actionRestante--;
+						}
+					}else if(caseClicked.type == caseType.feu) {
+						if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(1) >= 4 && this.artefactOwned.get(1) == 0) {
+							this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(1,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(1) - 4);
+							this.artefactOwned.set(1, 1);
+							this.actionRestante--;
+						}
+					}else if(caseClicked.type == caseType.air) {
+						if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(2) >= 4 && this.artefactOwned.get(2) == 0) {
+							this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(2,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(2) - 4);
+							this.artefactOwned.set(2, 1);
+							this.actionRestante--;
+						}
+					}else if(caseClicked.type == caseType.terre) {
+						if(this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(3) >= 4 && this.artefactOwned.get(3) == 0) {
+							this.joueurs.get(this.tourJ%this.nbJoueur).clef.set(3,this.joueurs.get(this.tourJ%this.nbJoueur).clef.get(3) - 4);
+							this.artefactOwned.set(3, 1);
+							this.actionRestante--;
+						}
+					}
+				}
+			}
+			if(((this.sontAdjacentes(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked) == true && realCase == true) 
+					|| (this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.explorateur && this.sontDiagonales(this.joueurs.get(this.tourJ%this.nbJoueur).pos, caseClicked) == true) 
+					|| (this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.pilote && realCase == true && this.joueurs.get(this.tourJ%this.nbJoueur).pos != caseClicked))
+					&& this.navigPlayerSelected.numJ == 99) {//on vérifie si elle est adjacente à notre personnage ou si on est un pilote ou si on est explorateur et en diagonale
+				this.joueurs.get(this.tourJ%this.nbJoueur).pos.j.remove(this.joueurs.get(this.tourJ%this.nbJoueur));//on enlève le joueurs de la liste de sa case précédente
+				this.joueurs.get(this.tourJ%this.nbJoueur).pos = caseClicked;//on déplace le joueur sur sa nouvelle case
+				caseClicked.j.add(this.joueurs.get(this.tourJ%this.nbJoueur));//on ajoute le joueur à la liste de sa nouvelle case
+				this.actionRestante--;//on décremente le nombre d'actions restantes
+			}else if(this.joueurs.get(this.tourJ%this.nbJoueur).classe == Classe.navigateur && this.navigPlayerSelected.numJ != 99) {
+				if((this.sontAdjacentes(this.navigPlayerSelected.pos, caseClicked) == true && realCase == true)
+						|| (this.navigPlayerSelected.classe == Classe.explorateur && this.sontDiagonales(this.navigPlayerSelected.pos, caseClicked) == true) 
+						|| (this.navigPlayerSelected.classe == Classe.pilote && realCase == true && this.navigPlayerSelected.pos != caseClicked)) {
+					this.navigPlayerSelected.pos.j.remove(this.navigPlayerSelected);//on enlève le joueurs de la liste de sa case précédente
+					this.navigPlayerSelected.pos = caseClicked;//on déplace le joueur sur sa nouvelle case
+					caseClicked.j.add(this.navigPlayerSelected);//on ajoute le joueur à la liste de sa nouvelle case
+					this.actionRestante--;//on décremente le nombre d'actions restantes
+					this.navigPlayerSelected = new Joueur(99);
+				}
+			}
+			
+		}
+	}
+	
 	private boolean sontDiagonales(Case pos, Case caseClicked) {
+		/*
+		 * Indique si deux cases sont diagonales l'une à l'autre
+		 * @ args: -pos: 1ere case
+		 * 		-caseClicked: 2eme case
+		 * @return: true si c'est vrai false sinon
+		 */
 		return Maths.distance(pos.x, pos.y, caseClicked.x, caseClicked.y) == java.lang.Math.sqrt(2*(java.lang.Math.pow(this.wd.wdHeight/6, 2)));
 	}
 
 	private boolean checkClasse(Classe c) {
-		for(int i = 0; i < this.selectClasseJ-1; i++) {
-			if(this.tempoClasse.get(i) == c) {
+		/*
+		 * Regarde si la classe a déjà été sélectionnée
+		 * @ args: -c: classe que l'on veut vérifier
+		 */
+		for(int i = 0; i < this.selectClasseJ-1; i++) {//on regarde les classe sélectionnées
+			if(this.tempoClasse.get(i) == c) {//si c'est le case on return false
 				return false;
 			}
 		}
-		this.tempoClasse.add(c);
+		this.tempoClasse.add(c);//sinon ont l'ajoute et return true
 		return true;
 	}
 
 	public void unselecting() {
+		/*
+		 * Déselectionne tout les boutons
+		 * @ args: 
+		 */
 		this.selectedSDS = false;
 		this.selectedH = false;
 		this.selectedA = false;
@@ -519,9 +556,9 @@ public class Plateau {
 					if(this.joueurs.get(this.tourJ%this.nbJoueur).classe != Classe.ingenieur) {//on regarde si c'est un ingénieur
 						this.actionRestante--;//on décrément le nombre d'actions restante
 					}else {
-						if(this.joueurs.get(this.tourJ%this.nbJoueur).ingeAssech == false) {
+						if(this.joueurs.get(this.tourJ%this.nbJoueur).ingeAssech == false) {//si on a pas fait le 1er assèchement
 							this.joueurs.get(this.tourJ%this.nbJoueur).ingeAssech = true;
-						}else {
+						}else {//sinon on fait le 2eme et on perd une action
 							this.joueurs.get(this.tourJ%this.nbJoueur).ingeAssech = false;
 							this.actionRestante--;
 						}
@@ -529,44 +566,30 @@ public class Plateau {
 					caseClicked.etat = Etat.normale;//on modifie l'état de la case modifiée
 				}
 			}
-			if(this.selectedSDS == true && this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable > 0 && this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS == false) {//utilisation du Sac de Sable
-				if(caseClicked.etat == Etat.innonde) {//on vérifie que la case est dans l'état innondé
-					caseClicked.etat = Etat.normale;//on modifie l'état de la case modifiée
-					this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable--;
-					this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS = true;
-					this.selectedSDS = false;
-				}
+		}
+		if(this.selectedSDS == true && this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable > 0 && this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS == false) {//utilisation du Sac de Sable
+			if(caseClicked.etat == Etat.innonde) {//on vérifie que la case est dans l'état innondé
+				caseClicked.etat = Etat.normale;//on modifie l'état de la case modifiée
+				this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable--;
+				this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS = true;
+				this.selectedSDS = false;
 			}
-			if(this.selectedH == true && this.joueurs.get(this.tourJ%this.nbJoueur).usedH == false) {//utilisation de l'hélico
-				this.joueurs.get(this.tourJ%this.nbJoueur).pos.j.remove(this.joueurs.get(this.tourJ%this.nbJoueur));//on enlève le joueurs de la liste de sa case précédente
-				this.joueurs.get(this.tourJ%this.nbJoueur).pos = caseClicked;//on déplace le joueur sur sa nouvelle case
-				caseClicked.j.add(this.joueurs.get(this.tourJ%this.nbJoueur));//on ajoute le joueur à la liste de sa nouvelle case
-				this.joueurs.get(this.tourJ%this.nbJoueur).nbHelico--;
-				this.joueurs.get(this.tourJ%this.nbJoueur).usedH = true;
-				this.selectedH = false;
-			}
-		}else {
-			if(this.selectedSDS == true && this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable > 0 && this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS == false) {//utilisation du Sac de Sable
-				if(caseClicked.etat == Etat.innonde) {//on vérifie que la case est dans l'état innondé
-					caseClicked.etat = Etat.normale;//on modifie l'état de la case modifiée
-					this.joueurs.get(this.tourJ%this.nbJoueur).nbSacDeSable--;
-					this.joueurs.get(this.tourJ%this.nbJoueur).usedSDS = true;
-					this.selectedSDS = false;
-				}
-			}
-			if(this.selectedH == true && this.joueurs.get(this.tourJ%this.nbJoueur).usedH == false) {//utilisation de l'hélico
-				this.joueurs.get(this.tourJ%this.nbJoueur).pos.j.remove(this.joueurs.get(this.tourJ%this.nbJoueur));//on enlève le joueurs de la liste de sa case précédente
-				this.joueurs.get(this.tourJ%this.nbJoueur).pos = caseClicked;//on déplace le joueur sur sa nouvelle case
-				caseClicked.j.add(this.joueurs.get(this.tourJ%this.nbJoueur));//on ajoute le joueur à la liste de sa nouvelle case
-				this.joueurs.get(this.tourJ%this.nbJoueur).nbHelico--;
-				this.joueurs.get(this.tourJ%this.nbJoueur).usedH = true;
-				this.selectedH = false;
-			}
+		}
+		if(this.selectedH == true && this.joueurs.get(this.tourJ%this.nbJoueur).usedH == false) {//utilisation de l'hélico
+			this.joueurs.get(this.tourJ%this.nbJoueur).pos.j.remove(this.joueurs.get(this.tourJ%this.nbJoueur));//on enlève le joueurs de la liste de sa case précédente
+			this.joueurs.get(this.tourJ%this.nbJoueur).pos = caseClicked;//on déplace le joueur sur sa nouvelle case
+			caseClicked.j.add(this.joueurs.get(this.tourJ%this.nbJoueur));//on ajoute le joueur à la liste de sa nouvelle case
+			this.joueurs.get(this.tourJ%this.nbJoueur).nbHelico--;
+			this.joueurs.get(this.tourJ%this.nbJoueur).usedH = true;
+			this.selectedH = false;
 		}
 	}
 
 	public void setupMenuJoueur() {
-		//on ajoute les boutons de selection de nombre de joueurs
+		/*
+		 * on ajoute les boutons de selection de nombre de joueurs
+		 * @ args: 
+		 */
 		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*3/20, this.wd.wdHeight*12/13, this.wd.wdWidth/10, this.wd.wdHeight/10, "1J", new Color(255,255,0)));
 		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*7/20, this.wd.wdHeight*12/13, this.wd.wdWidth/10, this.wd.wdHeight/10, "2J", new Color(255,0,0)));
 		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*11/20, this.wd.wdHeight*12/13, this.wd.wdWidth/10, this.wd.wdHeight/10, "3J", new Color(25,64,255)));
@@ -574,6 +597,10 @@ public class Plateau {
 	}
 	
 	public void setupMenuClasse() {
+		/*
+		 * on ajoute les boutons de selection de classe
+		 * @ args: 
+		 */
 		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth/12, this.wd.wdHeight/2, this.wd.wdWidth/6, this.wd.wdHeight/12, "Pilote", new Color(198, 237, 255)));
 		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*5/12, this.wd.wdHeight/2, this.wd.wdWidth/6, this.wd.wdHeight/12, "Ingénieur", new Color(252, 231, 20)));
 		this.buttons.add(new Bouton(this.wd, this, this.wd.wdWidth*9/12, this.wd.wdHeight/2, this.wd.wdWidth/6, this.wd.wdHeight/12, "Explorateur", new Color(23, 174, 0)));
@@ -588,21 +615,25 @@ public class Plateau {
 		 * @return: return true si les joueurs ont les 4 artefacts false sinon
 		 */
 		for(int i = 0; i < 4; i++) {//on vérifie chaque artefact
-			if(this.artefactOwned.get(i) == 0) return false;
+			if(this.artefactOwned.get(i) == 0) return false;//on regarde si on en a 1
 		}
-		for(int i = 0; i < this.nbJoueur; i++) {
+		for(int i = 0; i < this.nbJoueur; i++) {//on vérifie que tout le monde est sur l'héliport
 			if(this.joueurs.get(i).pos.type != caseType.heliport) return false;
 		}
 		return true;
 	}
 	
 	public boolean lose() {
-		ArrayList<Integer> check = new ArrayList<Integer>();
+		/*
+		 * Determine si la partie est perdu
+		 * @ args: 
+		 */
+		ArrayList<Integer> check = new ArrayList<Integer>();//contient le nombre de zone artefact submergée pour chaque artefact
 		check.add(0);
 		check.add(0);
 		check.add(0);
 		check.add(0);
-		for(int i = 0; i < this.cases.size(); i++) {
+		for(int i = 0; i < this.cases.size(); i++) {//pour chaque case on vérifie chaque type d'artefact et l'état de la case
 			if(this.cases.get(i).type == caseType.air && this.cases.get(i).etat == Etat.submerge) {
 				check.set(0, check.get(0) + 1);
 			}else if(this.cases.get(i).type == caseType.eau && this.cases.get(i).etat == Etat.submerge) {
@@ -611,28 +642,28 @@ public class Plateau {
 				check.set(2, check.get(2) + 1);
 			}else if(this.cases.get(i).type == caseType.terre && this.cases.get(i).etat == Etat.submerge) {
 				check.set(3, check.get(3) + 1);
-			}else if(this.cases.get(i).type == caseType.heliport && this.cases.get(i).etat == Etat.submerge) {
+			}else if(this.cases.get(i).type == caseType.heliport && this.cases.get(i).etat == Etat.submerge) {//si l'héliport est submergé on a perdu
 				System.out.println("heli submerged");
 				return true;
 			}
 		}
-		if(check.get(0) == 2 || check.get(1) == 2 || check.get(2) == 2 || check.get(3) == 2) {
+		if(check.get(0) == 2 || check.get(1) == 2 || check.get(2) == 2 || check.get(3) == 2) {//si les 2 cases d'un artefact sont submergés on a perdu
 			System.out.println("arti submerged");
 			return true;
 		}
-		int nbCaseAdjaJoueur;
-		boolean isPlayerSubmerged;
-		for(int i = 0; i < this.nbJoueur; i++) {
-			isPlayerSubmerged = true;
-			nbCaseAdjaJoueur = 0;
-			for(int j = 0; j < this.cases.size(); j++) {
+		int nbCaseAdjaJoueur;//compte le nombre de case adjacentes libre du joueur
+		boolean isPlayerSubmerged;//détermine si le joueur est submergé
+		for(int i = 0; i < this.nbJoueur; i++) {//pour chaque joueur
+			isPlayerSubmerged = true;//commence a true
+			nbCaseAdjaJoueur = 0;//commence a 0
+			for(int j = 0; j < this.cases.size(); j++) {//pour chaque cases
 				if(sontAdjacentes(this.joueurs.get(i).pos, this.cases.get(j)) == true && this.cases.get(j).etat != Etat.submerge 
 						|| (this.joueurs.get(i).classe == Classe.explorateur && this.sontDiagonales(this.joueurs.get(i).pos, this.cases.get(j)))
-						|| this.joueurs.get(i).classe == Classe.plongueur) {
-					isPlayerSubmerged = false;
+						|| this.joueurs.get(i).classe == Classe.plongueur || this.joueurs.get(i).classe == Classe.pilote) {//détermine si la case est disponible selon la classe du joueur
+					isPlayerSubmerged = false;//on indique qu'il n'est pas submergé
 				}
 			}
-			if(isPlayerSubmerged == true && this.joueurs.get(i).pos.etat == Etat.submerge) {
+			if(isPlayerSubmerged == true && this.joueurs.get(i).pos.etat == Etat.submerge) {//on regarde si en plus la case du joueur est submergée
 				System.out.println("player submerged");
 				return true;
 			}

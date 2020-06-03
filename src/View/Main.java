@@ -14,9 +14,9 @@ import Model.*;
 public class Main {
 	
 	public static void main(String[] args) {
-		JFrame cadre = new JFrame("IleDeserte");//on créer le cadre de la fenetre
+		JFrame cadre = new JFrame("IleDeserte");//on crée le cadre de la fenetre
 		cadre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//on définie l'action pour fermer la fenêtre
-		Fenetre wd = new Fenetre(new Plateau());//on créer l'intérieur de la fenêtre
+		Fenetre wd = new Fenetre(new Plateau());//on crée l'intérieur de la fenêtre
 		wd.p.linkWindow(wd);//on lie la fenetre au plateau
 		JTextField component = new JTextField();//permet d'ajouter le KeyListener
 	    wd.addMouseListener(new MyMouseListener(wd));//on ajoute le MouseListener
@@ -25,11 +25,11 @@ public class Main {
 		cadre.add(wd);//on assemble la fenêtre
 		cadre.setSize(wd.wdWidth,wd.wdHeight+wd.basHeight);//on définie les dimensions du cadre
 		cadre.setVisible(true);//on affiche la fenêtre
-		wd.p.setupMenuJoueur();//on créer ce qu'il faut pour le premier menu
+		wd.p.setupMenuJoueur();//on crée ce qu'il faut pour le premier menu
 		while(wd.p.eP == EtatPlateau.MenuSelectionNbJoueur) {//permet d'avoir la fenêtre à jour en continue
 			wd.repaint();//met a jour les composants graphiques
 		}
-		wd.p.setupMenuClasse();
+		wd.p.setupMenuClasse();//on crée les boutons du menu de selection des classes
 		while(wd.p.eP == EtatPlateau.MenuSelectionClasse) {//permet d'avoir la fenêtre à jour en continue
 			wd.repaint();//met a jour les composants graphiques
 		}
@@ -39,7 +39,7 @@ public class Main {
 			if(wd.p.win() == true) {
 				wd.p.eP = EtatPlateau.MenudeFinGagnant;//si on a gagné on modifie l'état du jeu
 			}else if(wd.p.lose() == true) {
-				wd.p.eP = EtatPlateau.MenudeFinPerdant;
+				wd.p.eP = EtatPlateau.MenudeFinPerdant;//si on a perdue on modifie l'état du jeu
 			}
 		}
 		while(wd.p.eP == EtatPlateau.MenudeFinGagnant) {
@@ -47,7 +47,6 @@ public class Main {
 		}
 		while(wd.p.eP == EtatPlateau.MenudeFinPerdant) {
 			wd.repaint();//met a jour les composants graphiques
-			//test
 		}
 	}
 	
